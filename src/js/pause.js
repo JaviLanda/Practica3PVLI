@@ -9,7 +9,7 @@ var Pause = {
 	var button1 = game.add.button(-50, 100, 'button1', button1Click, this, 2, 1, 0, this.menu);
 	var button2 = game.add.button(-50, 200, 'button2', button2Click, this, 2, 1, 0, this.menu);
 	
-	}
+	},
 
 	// pause the game and show the menu
 	/*pauseGame: function() {
@@ -25,7 +25,7 @@ var Pause = {
    	    	this.game.paused = false;
    	    	this.menu.visible = false;
    	    }
-   	}
+   	},
    	        
    	button2Click: function() {
    	    if (this.game.paused) {

@@ -29,7 +29,7 @@ var PreloaderScene = {
     this.game.load.setPreloadSprite(this.loadingBar);
     this.game.stage.backgroundColor = "#000000";
    
-    
+    /*
       //Carga del tilemap e imagenes 
       this.load.onLoadStart.add(this.loadStart, this);
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
@@ -37,19 +37,22 @@ var PreloaderScene = {
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png','images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 
     	this.game.load.onLoadComplete.add(this.loadComplete, this);
+      */
       
-      /*CODIGO NUEVO
       this.load.onLoadStart.add(this.loadStart, this);
-      this.game.load.tilemap('tilemap', 'images/level1.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/tilesMaria.png');
-      this.game.load.image('personaje', 'images/personaje.png');
+      this.game.load.tilemap('tilemap', 'images/lvl1.csv', null, Phaser.Tilemap.CSV);
+      this.game.load.image('tiles', 'images/tileset.png');
+      this.game.load.image('pinchos', 'images/pinchosdef.png');
+      this.game.load.image('back', 'images/fondoclaroscuro.png');
+
       
-      **-- esto creo que no nos hace falta --**
+      /***-- esto creo que no nos hace falta --**
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png',
       'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-      
+      **--------------------------------------***/
+
       this.game.load.onLoadComplete.add(this.loadComplete, this);
-      */
+      
 
 	},
       

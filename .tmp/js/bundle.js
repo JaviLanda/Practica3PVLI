@@ -13,8 +13,7 @@ var GameOver = {
         goText.anchor.set(0.5);
         button.addChild(text);
         
-        //TODO 8 crear un boton con el texto 'Return Main Menu' que nos devuelva al menu del juego.
-         var button2 = this.game.add.button(400, 150, 
+        var button2 = this.game.add.button(400, 150, 
                                           'button', 
                                           this.actionOnClick2, 
                                           this, 2, 1, 0);
@@ -27,7 +26,7 @@ var GameOver = {
         this.game.state.start('menu');
     },
     
-    //TODO 7 declarar el callback del boton.
+    
     actionOnClick: function () {
         this.game.state.start('preloader');
     }
@@ -38,14 +37,11 @@ module.exports = GameOver;
 },{}],2:[function(require,module,exports){
 'use strict';
 
-//TODO 1.1 Require de las escenas, play_scene, gameover_scene y menu_scene.
+
 var play = require('./play_scene');
 var gameOver = require('./gameover_scene');
 var menu = require('./menu_scene');
-
-//  The Google WebFont Loader will look for this object, so create it before loading the script.
-
-
+var pause = require('./pause');
 
 
 var BootScene = {
@@ -53,14 +49,12 @@ var BootScene = {
     // load here assets required for the loading screen
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
-    this.game.load.image('logo', 'images/phaser.png');
+    this.game.load.image('fondo', 'images/fondoMenu.png');
   },
 
   create: function () {
     //this.game.state.start('preloader');
       this.game.state.start('menu');
-
-     
   }
 };
 
@@ -72,18 +66,31 @@ var PreloaderScene = {
     this.game.load.setPreloadSprite(this.loadingBar);
     this.game.stage.backgroundColor = "#000000";
    
-    //TODO 2.1 Cargar el tilemap images/map.json con el nombre de la cache 'tilemap'.
-      //la imagen 'images/simples_pimples.png' con el nombre de la cache 'tiles' y
-      // el atlasJSONHash con 'images/rush_spritesheet.png' como imagen y 'images/rush_spritesheet.json'
-      //como descriptor de la animación.
-      //(HECHO)
+    /*
+      //Carga del tilemap e imagenes 
       this.load.onLoadStart.add(this.loadStart, this);
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png','images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 
-    	//TODO 2.2a Escuchar el evento onLoadComplete con el método loadComplete que el state 'play'
     	this.game.load.onLoadComplete.add(this.loadComplete, this);
+      */
+      
+      this.load.onLoadStart.add(this.loadStart, this);
+      this.game.load.tilemap('tilemap', 'images/lvl1.csv', null, Phaser.Tilemap.CSV);
+      this.game.load.image('tiles', 'images/tileset.png');
+      this.game.load.image('pinchos', 'images/pinchosdef.png');
+      this.game.load.image('back', 'images/fondoclaroscuro.png');
+
+      
+      /***-- esto creo que no nos hace falta --**
+      this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png',
+      'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+      **--------------------------------------***/
+
+      this.game.load.onLoadComplete.add(this.loadComplete, this);
+      
+
 	},
       
 
@@ -94,8 +101,6 @@ var PreloaderScene = {
     
   },
     
-     //TODO 2.2b function loadComplete()
-     //(Creo que es asi)
 
    loadComplete: function(){
     this.ready = true;
@@ -128,33 +133,27 @@ function init (){
   game.state.add('menu', menu);
   game.state.add('gameOver', gameOver);
   game.state.add('play', play);
+  game.state.add('pause', pause);
  
   game.state.start('boot');
  
-  //game.state.start('play');
-
 }
  
-//TODO 3.3 La creación del juego y la asignación de los states se hará en el método init().
-
 window.onload = function () {
-  //TODO 3.2 Cargar Google font cuando la página esté cargada con wfconfig.
-
-  WebFont.load(wfconfig); 	//carga la fuente definida en el objeto anterior. (3.2)
-  
+  WebFont.load(wfconfig); 	
 
 
  
 };
 
-},{"./gameover_scene":1,"./menu_scene":3,"./play_scene":4}],3:[function(require,module,exports){
+},{"./gameover_scene":1,"./menu_scene":3,"./pause":4,"./play_scene":5}],3:[function(require,module,exports){
 var MenuScene = {
     create: function () {
         
-        var logo = this.game.add.sprite(this.game.world.centerX, 
+        var fondo = this.game.add.sprite(this.game.world.centerX, 
                                         this.game.world.centerY, 
-                                        'logo');
-        logo.anchor.setTo(0.5, 0.5);
+                                        'fondo');
+        fondo.anchor.setTo(0.5, 0.5);
         var buttonStart = this.game.add.button(this.game.world.centerX, 
                                                this.game.world.centerY, 
                                                'button', 
@@ -174,6 +173,51 @@ var MenuScene = {
 
 module.exports = MenuScene;
 },{}],4:[function(require,module,exports){
+var Pause = { 
+	create: function() {
+
+	var menu = game.add.group();
+	menu.x = game.world.centerX;
+	// make the menu invisible for now 
+	menu.visible = false;  
+	// create 3 buttons and add them to the 'menu' group
+	var button1 = game.add.button(-50, 100, 'button1', button1Click, this, 2, 1, 0, this.menu);
+	var button2 = game.add.button(-50, 200, 'button2', button2Click, this, 2, 1, 0, this.menu);
+	
+	},
+
+	// pause the game and show the menu
+	/*pauseGame: function() {
+   		this.game.paused = true;
+   		this.menu.visible = true;
+   	
+   	}*/
+ 
+
+   	// ensure the game is paused before allowing the action to go ahead
+   	button1Click: function() {
+   	    if (this.game.paused) {
+   	    	this.game.paused = false;
+   	    	this.menu.visible = false;
+   	    }
+   	},
+   	        
+   	button2Click: function() {
+   	    if (this.game.paused) {
+   	    	this.game.state.start('menu');
+   	        
+   	        
+   	        }}       
+   
+
+
+
+
+
+};
+
+module.exports = Pause
+},{}],5:[function(require,module,exports){
 'use strict';
 
 //Enumerados: PlayerState son los estado por los que pasa el player. Directions son las direcciones a las que se puede
@@ -193,44 +237,61 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
-
-      //Creamos al player con un sprite por defecto.
-      //TODO 5 Creamos a rush 'rush' con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-    //  var rush = this.game.load.spritesheet('rush', 'images/rush_spritesheet.png');
+      /*
+      //Crea el sprite del player
       this._rush = this.game.add.sprite(10, 10, 'rush_idle01');
-      
 
-      //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
+      //Carga el tilemap 'tilemap' y asigna al tileset 'patrones' la imagen de sprites 'tiles'
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/simples_pimples.png', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png','images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('patrones','tiles');
+      */
+      
+      
+
+      this.game.load.tilemap('tilemap', 'images/lvl1.csv', null, Phaser.Tilemap.CSV);
+      this.game.load.image('tiles', 'images/tileset.png', null, Phaser.Tilemap.CSV);
+      this.game.load.image('personaje', 'images/personaje.png');
+      this.game.load.image('pinchos', 'images/pinchosdef.png', null, Phaser.Tilemap.CSV);
+      this.game.load.image('back', 'images/fondoclaroscuro.png', null, Phaser.Tilemap.CSV);
+      this._rush = this.game.add.sprite(10, 10, 'personaje');
+      /*
+      this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png',
+      'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH); (este creo que no hace falta para esta practica)
+      */
+      this.map = this.game.add.tilemap('tilemap');
+      this.map.addTilesetImage('tileset','tiles');
+      this.map.addTilesetImage('pinchosdef','pinchos');
+      this.map.addTilesetImage('fondoclaroscuro','back');
 
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('BackgroundLayer');
-      this.groundLayer = this.map.createLayer('GroundLayer');
+      this.backgroundLayer = this.map.createLayer('fondo');
+      this.groundLayer = this.map.createLayer('plataformas');
       //plano de muerte
-      this.death = this.map.createLayer('Death');
+      this.death = this.map.createLayer('death');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'Death');
-      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
+      this.map.setCollisionBetween(1, 5000, true, 'death');
+      this.map.setCollisionBetween(1, 5000, true, 'plataformas');
       this.death.visible = false;
       //Cambia la escala a x3.
       this.groundLayer.setScale(3,3);
       this.backgroundLayer.setScale(3,3);
       this.death.setScale(3,3);
       
+
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
-      //nombre de la animación, frames, framerate, isloop
-      this._rush.animations.add('run',
+     //nombre de la animación, frames, framerate, isloop
+      //esto no nos hace falta para esta practica  
+      /*this._rush.animations.add('run',
                     Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
       this._rush.animations.add('stop',
                     Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
       this._rush.animations.add('jump',
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
-      this.configure();
+      this.configure();*/
   },
     
     //IS called one per frame.
@@ -310,14 +371,18 @@ var PlayScene = {
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
     },
-    
+
+    pressPause: function (){
+        if(this.game.input.keyboard.isDown(Phaser.KeyCode.P))
+            this.game.state.start('pause');
+    },
     
     canJump: function(collisionWithTilemap){
         return this.isStanding() && collisionWithTilemap || this._jamping;
     },
     
     onPlayerFell: function(){
-        //TODO 6 Carga de 'gameOver';
+        
         this.game.state.start('gameOver');
 
     },
@@ -371,11 +436,12 @@ var PlayScene = {
 
     },
     
-    //TODO 9 destruir los recursos tilemap, tiles y logo.
     shutdown: function() {
 
     this.cache.removeTilemap('tilemap');
-    this.cache.removeImage('patrones');
+    this.cache.removeImage('tileset');
+    this.cache.removeImage('pinchosdef');
+    this.cache.removeImage('fondoclaroscuro');
     this.game.world.setBounds(0,0,800,600);
     }
 

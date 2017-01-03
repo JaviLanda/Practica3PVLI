@@ -17,7 +17,7 @@ var PlayScene = {
 
     //Método constructor...
   create: function () {
-
+      /*
       //Crea el sprite del player
       this._rush = this.game.add.sprite(10, 10, 'rush_idle01');
 
@@ -27,47 +27,39 @@ var PlayScene = {
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png','images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('patrones','tiles');
+      */
+      
+      
 
-      /*CODIGO NUEVO
-      this.game.load.tilemap('tilemap', images/level1.json, null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/tilesMaria.png', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('personaje', 'images/personaje.png');  
+      this.game.load.tilemap('tilemap', 'images/lvl1.csv', null, Phaser.Tilemap.CSV);
+      this.game.load.image('tiles', 'images/tileset.png', null, Phaser.Tilemap.CSV);
+      this.game.load.image('personaje', 'images/personaje.png');
+      this.game.load.image('pinchos', 'images/pinchosdef.png', null, Phaser.Tilemap.CSV);
+      this.game.load.image('back', 'images/fondoclaroscuro.png', null, Phaser.Tilemap.CSV);
+      this._rush = this.game.add.sprite(10, 10, 'personaje');
+      /*
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png',
       'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH); (este creo que no hace falta para esta practica)
-
-      this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('como se llame el conjunto de patrones del mapa/nivel','tiles');
       */
+      this.map = this.game.add.tilemap('tilemap');
+      this.map.addTilesetImage('tileset','tiles');
+      this.map.addTilesetImage('pinchosdef','pinchos');
+      this.map.addTilesetImage('fondoclaroscuro','back');
 
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('BackgroundLayer');
-      this.groundLayer = this.map.createLayer('GroundLayer');
+      this.backgroundLayer = this.map.createLayer('fondo');
+      this.groundLayer = this.map.createLayer('plataformas');
       //plano de muerte
-      this.death = this.map.createLayer('Death');
+      this.death = this.map.createLayer('death');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'Death');
-      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
+      this.map.setCollisionBetween(1, 5000, true, 'death');
+      this.map.setCollisionBetween(1, 5000, true, 'plataformas');
       this.death.visible = false;
       //Cambia la escala a x3.
       this.groundLayer.setScale(3,3);
       this.backgroundLayer.setScale(3,3);
       this.death.setScale(3,3);
-
-      /*//Creacion de las layers
-      ***--CODIGO NUEVO--***
-      this.backgroundLayer = this.map.createLayer('tu capa de Background');
-      this.groundLayer = this.map.createLayer('la capa de suelo');
-      //plano de muerte
-      this.death = this.map.createLayer('la capa muerte');
-      //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'la capa muerte');
-      this.map.setCollisionBetween(1, 5000, true, 'la capa de suelo');
-      this.death.visible = false;
-      //Cambia la escala a x3.
-      this.groundLayer.setScale(3,3);
-      this.backgroundLayer.setScale(3,3);
-      this.death.setScale(3,3);
-      */
+      
 
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
@@ -163,7 +155,7 @@ var PlayScene = {
     pressPause: function (){
         if(this.game.input.keyboard.isDown(Phaser.KeyCode.P))
             this.game.state.start('pause');
-    }
+    },
     
     canJump: function(collisionWithTilemap){
         return this.isStanding() && collisionWithTilemap || this._jamping;
@@ -227,7 +219,9 @@ var PlayScene = {
     shutdown: function() {
 
     this.cache.removeTilemap('tilemap');
-    this.cache.removeImage('como se llame el conjunto de patrones del nivel');
+    this.cache.removeImage('tileset');
+    this.cache.removeImage('pinchosdef');
+    this.cache.removeImage('fondoclaroscuro');
     this.game.world.setBounds(0,0,800,600);
     }
 

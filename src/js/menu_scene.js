@@ -11,7 +11,7 @@ var MenuScene = {
                                                this.actionOnClick, 
                                                this, 2, 1, 0);
         buttonStart.anchor.set(0.5);
-        var textStart = this.game.add.text(0, 0, "Start");
+        var textStart = this.game.add.text(0, 0, "Play!");
         textStart.font = 'Sniglet';
         textStart.anchor.set(0.5);
         buttonStart.addChild(textStart);

@@ -29,21 +29,16 @@ var PreloaderScene = {
     this.game.load.setPreloadSprite(this.loadingBar);
     this.game.stage.backgroundColor = "#000000";
    
-    /*
-      //Carga del tilemap e imagenes 
-      this.load.onLoadStart.add(this.loadStart, this);
-      this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/simples_pimples.png');
-      this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png','images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-
-    	this.game.load.onLoadComplete.add(this.loadComplete, this);
-      */
+    this.game.load.onLoadComplete.add(this.loadComplete, this);
       
-      this.load.onLoadStart.add(this.loadStart, this);
-      this.game.load.tilemap('tilemap', 'images/lvl1.csv', null, Phaser.Tilemap.CSV);
+      
+
+      this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/tileset.png');
       this.game.load.image('pinchos', 'images/pinchosdef.png');
       this.game.load.image('back', 'images/fondoclaroscuro.png');
+      this.game.load.image('personaje', 'images/personaje.png');
+
 
       
       /***-- esto creo que no nos hace falta --**
@@ -58,14 +53,15 @@ var PreloaderScene = {
       
 
   loadStart: function () {
- 
+    
     console.log("Game Assets Loading ...");
-    this.game.state.start('play');
+   
     
   },
     
 
    loadComplete: function(){
+    this.game.state.start('play');
     this.ready = true;
    },
     
@@ -88,6 +84,12 @@ var wfconfig = {
     }
  
 };
+
+window.onload = function () {
+  WebFont.load(wfconfig);   
+
+};
+
 function init (){
 
   var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
@@ -100,11 +102,5 @@ function init (){
  
   game.state.start('boot');
  
-}
- 
-window.onload = function () {
-  WebFont.load(wfconfig); 	
-
-
  
 };

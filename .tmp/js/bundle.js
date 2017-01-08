@@ -50,6 +50,8 @@ var BootScene = {
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('fondo', 'images/fondoMenu.png');
+    this.game.load.image('coltan', 'images/coltan.png');
+
   },
 
   create: function () {
@@ -70,10 +72,8 @@ var PreloaderScene = {
       
       
 
-      this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/tileset.png');
-      this.game.load.image('pinchos', 'images/pinchosdef.png');
-      this.game.load.image('back', 'images/fondoclaroscuro.png');
+      this.game.load.tilemap('tilemap', 'images/lvlphaser.json', null, Phaser.Tilemap.TILED_JSON);
+      this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.image('personaje', 'images/personaje.png');
 
 
@@ -172,13 +172,13 @@ module.exports = MenuScene;
 var Pause = { 
 	create: function() {
 
-	var menu = game.add.group();
-	menu.x = game.world.centerX;
+	var menu = this.game.add.group();
+	menu.x = this.game.world.centerX;
 	// make the menu invisible for now 
 	menu.visible = false;  
 	// create 3 buttons and add them to the 'menu' group
-	var button1 = game.add.button(-50, 100, 'button1', button1Click, this, 2, 1, 0, this.menu);
-	var button2 = game.add.button(-50, 200, 'button2', button2Click, this, 2, 1, 0, this.menu);
+	var button1 = this.game.add.button(-50, 100, 'button1', button1Click, this, 2, 1, 0, this.menu);
+	var button2 = this.game.add.button(-50, 200, 'button2', button2Click, this, 2, 1, 0, this.menu);
 	
 	},
 
@@ -191,19 +191,18 @@ var Pause = {
  
 
    	// ensure the game is paused before allowing the action to go ahead
-   	button1Click: function() {
-   	    if (this.game.paused) {
-   	    	this.game.paused = false;
-   	    	this.menu.visible = false;
-   	    }
-   	},
+   button1Click: function() {
+   	if (this.game.paused) {
+   	  	this.game.paused = false;
+   	   this.menu.visible = false;
+   	}
+   },
    	        
-   	button2Click: function() {
-   	    if (this.game.paused) {
-   	    	this.game.state.start('menu');
-   	        
-   	        
-   	        }}       
+   button2Click: function() {
+   	if (this.game.paused) {
+   	    this.game.state.start('menu');
+   	}
+   }       
    
 
 
@@ -220,7 +219,7 @@ module.exports = Pause
 //mover el player.
 var PlayerState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
-
+var coltan;
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
@@ -229,115 +228,101 @@ var PlayScene = {
     _jumpHight: 150, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
-  
+
+	  
 
     //Método constructor...
   create: function () {
-     
-      
-      this._rush = this.game.add.sprite(69, 98, 'personaje');
 
-      this.map = this.game.add.tilemap('tilemap', 32, 32);
-      this.map.addTilesetImage('tileset','tiles');
-      this.map.addTilesetImage('pinchosdef','pinchos');
-      this.map.addTilesetImage('fondoclaroscuro','back');
-
+      this.map = this.game.add.tilemap('tilemap');
+      this.map.addTilesetImage('simples_pimples','tiles');
       
       this.backgroundLayer = this.map.createLayer('fondo');
-      this.groundLayer = this.map.createLayer('plataformas');
+      this.groundLayer = this.map.createLayer('platforms');
       this.death = this.map.createLayer('death');
 
       this.map.setCollisionBetween(1, 5000, true, 'death');
-      this.map.setCollisionBetween(1, 5000, true, 'plataformas');
+      this.map.setCollisionBetween(1, 5000, true, 'platforms');
       
       this.groundLayer.setScale(3,3);
       this.backgroundLayer.setScale(3,3);
       this.death.setScale(3,3);
-      
 
-      //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
- 
-  },
-    
-    //IS called one per frame.
-    update: function () {
-        var moveDirection = new Phaser.Point(0, 0);
-        var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
-        var movement = this.GetMovement();
-        
-		this.movement(moveDirection,5,
-                      this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
-        this.checkPlayerFell();
+      this.death.visible = true;
 
-    },
-
-    pressPause: function (){
-        if(this.game.input.keyboard.isDown(Phaser.KeyCode.P))
-            this.game.state.start('pause');
-    },
+      this._rush = this.game.add.sprite(300, 50, 'personaje');
+      coltan = this.game.add.sprite(300, 100, 'coltan');
+      this._rush.scale.setTo(0.5, 0.5);
+      coltan.scale.setTo(0.5, 0.5);
      
-    onPlayerFell: function(){
-        this.game.state.start('gameOver');
+      this.game.world.setBounds(0, 0, 2000, 2700);
+      this.game.physics.startSystem(Phaser.Physics.ARCADE);
+	  this.game.stage.backgroundColor = '#000000';
+      this.game.physics.arcade.gravity.y = 300;
+      this.game.physics.enable(this._rush, Phaser.Physics.ARCADE);
 
-    },
+      this._rush.body.bounce.y = 0.1;
+   	  //this._rush.body.collideWorldBounds = true;
+      
+      this._rush.body.gravity.y = 1000;
+      this._rush.body.gravity.x = 0;
+     
+      this.game.camera.follow(this._rush);
+
+      this.groundLayer.resizeWorld(); //resize world and adjust to the screen
+  },
+
+  collectStars: function() {
+    	coltan.kill();
+    	console.log("tooma")
     
-    checkPlayerFell: function(){
-        if(this.game.physics.arcade.collide(this._rush, this.death))
-            this.onPlayerFell();
     },
-        
-        
-    isJumping: function(collisionWithTilemap){
-        return this.canJump(collisionWithTilemap) && 
-            this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR);
-    },
-        
-    GetMovement: function(){
-        var movement = Direction.NONE
-        //Move Right
-        if(this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-            movement = Direction.RIGHT;
-        }
-        //Move Left
-        if(this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-            movement = Direction.LEFT;
-        }
-        return movement;
-    },
-    //configure the scene
-    configure: function(){
-        //Start the Arcade Physics systems
-        this.game.world.setBounds(0, 0, 2400, 160);
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
-        this.game.stage.backgroundColor = '#a9f0ff';
-        this.game.physics.arcade.enable(this._rush);
-        
-        this._rush.body.bounce.y = 0.2;
-        this._rush.body.gravity.y = 20000;
-        this._rush.body.gravity.x = 0;
-        this._rush.body.velocity.x = 0;
-        this.game.camera.follow(this._rush);
-    },
-    //move the player
-    movement: function(point, xMin, xMax){
-        this._rush.body.velocity = point;// * this.game.time.elapseTime;
-        
-        if((this._rush.x < xMin && point.x < 0)|| (this._rush.x > xMax && point.x > 0))
-            this._rush.body.velocity.x = 0;
 
+  update: function() {
+  	 var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
+  	 var cursors = this.game.input.keyboard.createCursorKeys();
+     var jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+	 this.game.camera.follow(this._rush);
+
+	this._rush.body.velocity.x = 0;
+
+    if (cursors.left.isDown)
+    {
+        this._rush.body.velocity.x = -300;
+
+    }
+     if (cursors.right.isDown)
+    {
+        this._rush.body.velocity.x = 300;
+    }
+    
+    if (jumpButton.isDown && this._rush.body.onFloor())
+    {
+        this._rush.body.velocity.y = -500; 
+    }    
+
+  	//GameOver
+    if(this.game.physics.arcade.collide(this._rush, this.death)){
+            this.game.state.start('gameOver');
+        }
     },
+
+	
+
+    
     
     shutdown: function() {
 
     this.cache.removeTilemap('tilemap');
-    this.cache.removeImage('tileset');
-    this.cache.removeImage('pinchosdef');
-    this.cache.removeImage('fondoclaroscuro');
+    this.cache.removeImage('tiles');
     this.game.world.setBounds(0,0,800,600);
+    console.log("saa rotooo	")
     }
 
+
+
+   
 };
 
 module.exports = PlayScene;
-
 },{}]},{},[2]);

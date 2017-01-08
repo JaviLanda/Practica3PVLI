@@ -13,6 +13,8 @@ var BootScene = {
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('fondo', 'images/fondoMenu.png');
+    this.game.load.image('coltan', 'images/coltan.png');
+
   },
 
   create: function () {
@@ -33,10 +35,8 @@ var PreloaderScene = {
       
       
 
-      this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/tileset.png');
-      this.game.load.image('pinchos', 'images/pinchosdef.png');
-      this.game.load.image('back', 'images/fondoclaroscuro.png');
+      this.game.load.tilemap('tilemap', 'images/lvlphaser.json', null, Phaser.Tilemap.TILED_JSON);
+      this.game.load.image('tiles', 'images/simples_pimples.png');
       this.game.load.image('personaje', 'images/personaje.png');
 
 

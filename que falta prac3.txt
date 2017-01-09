@@ -1,6 +1,3 @@
--cambiar menu (mas potito)
 -menu/pantalla/pausa en general
 -añadir enemigo
 -recursos
--Interfaz
--GDD	

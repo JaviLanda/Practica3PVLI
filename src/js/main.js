@@ -5,6 +5,7 @@ var play = require('./play_scene');
 var gameOver = require('./gameover_scene');
 var menu = require('./menu_scene');
 var pause = require('./pause');
+var victory = require('./victory_scene');
 
 
 var BootScene = {
@@ -14,6 +15,7 @@ var BootScene = {
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('fondo', 'images/fondoMenu.png');
     this.game.load.image('coltan', 'images/coltan.png');
+    this.game.load.image('enemy', 'images/enemy.png');
 
   },
 
@@ -99,6 +101,7 @@ function init (){
   game.state.add('gameOver', gameOver);
   game.state.add('play', play);
   game.state.add('pause', pause);
+  game.state.add('victory', victory);
  
   game.state.start('boot');
  

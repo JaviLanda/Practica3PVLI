@@ -16,6 +16,8 @@ var BootScene = {
     this.game.load.image('fondo', 'images/fondoMenu.png');
     this.game.load.image('coltan', 'images/coltan.png');
     this.game.load.image('enemy', 'images/enemy.png');
+    this.game.load.image('trigger', 'images/trigger.png');
+
 
   },
 

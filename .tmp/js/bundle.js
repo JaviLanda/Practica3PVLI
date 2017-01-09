@@ -53,6 +53,8 @@ var BootScene = {
     this.game.load.image('fondo', 'images/fondoMenu.png');
     this.game.load.image('coltan', 'images/coltan.png');
     this.game.load.image('enemy', 'images/enemy.png');
+    this.game.load.image('trigger', 'images/trigger.png');
+
 
   },
 
@@ -241,14 +243,16 @@ var PlayScene = {
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
     enemy:{},
     coltan:{},
-	  
+	  triggerR:{},
+    triggerL:{},
 
     //Método constructor...
   create: function () {
-
+      //creacion del mapa
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('simples_pimples','tiles');
       
+      //creacion de las capas
       this.backgroundLayer = this.map.createLayer('fondo');
       this.groundLayer = this.map.createLayer('platforms');
       this.death = this.map.createLayer('death');
@@ -262,13 +266,20 @@ var PlayScene = {
 
       this.death.visible = true;
 
-      this._rush = this.game.add.sprite(200, 50, 'personaje');
-      this.coltan = this.game.add.sprite(300, 100, 'coltan');
-      this.enemy = this.game.add.sprite(300, 100, 'enemy');
+      //Añadimos los sprites de las entidades
+      this._rush = this.game.add.sprite(250, 1950, 'personaje');
+      this.coltan = this.game.add.sprite(350, 1950, 'coltan');
+      this.enemy = this.game.add.sprite(450, 1900, 'enemy');
       this.enemy.scale.setTo(0.5, 0.5);
       this._rush.scale.setTo(0.5, 0.5);
       this.coltan.scale.setTo(0.5, 0.5);
-     
+
+      this.triggerR = this.game.add.sprite(550, 1925, null, 0 /*aqui va el nombre del grupo de triggers*/);
+      this.triggerR.scale.setTo(0.25, 0.25);
+      this.triggerL = this.game.add.sprite(200, 1925, null, 0 /*aqui va el nombre del grupo de triggers*/);
+      this.triggerL.scale.setTo(0.25, 0.25);
+
+      //Limites y fisicas
       this.game.world.setBounds(0, 0, 2000, 2700);
       this.game.physics.startSystem(Phaser.Physics.ARCADE);
 	    this.game.stage.backgroundColor = '#000000';
@@ -276,6 +287,9 @@ var PlayScene = {
       this.game.physics.enable(this._rush, Phaser.Physics.ARCADE);
       this.game.physics.enable(this.enemy, Phaser.Physics.ARCADE);
       this.game.physics.enable(this.coltan, Phaser.Physics.ARCADE);
+      this.game.physics.enable(this.triggerR, Phaser.Physics.ARCADE);
+      this.game.physics.enable(this.triggerL, Phaser.Physics.ARCADE);
+
 
       this._rush.body.bounce.y = 0.1;
 
@@ -285,11 +299,17 @@ var PlayScene = {
       this.game.camera.follow(this._rush);
 
       this.groundLayer.resizeWorld(); //resize world and adjust to the screen+
+      //Camara siguiendo al player
+      this.game.camera.follow(this._rush);
 
-     /* var timer = this.game.time.create(false);
-      timer.loop(1000, enemyMovement, this);
-      timer.start();
-      */
+      this.game.time.events.loop(Phaser.Timer.SECOND, this.changeDirection, this);
+
+      //ajustamos aqui el movimiento del enemigo para que pueda girar sin problemas
+      this.enemy.body.velocity.x = 50;
+
+      //Pause------------------
+      var Esc = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+      Esc.onDown.add(this.unpause,this);
 
  },
   collectStars: function() {
@@ -302,9 +322,13 @@ var PlayScene = {
   	 var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
      var collisionWithEnemies = this.game.physics.arcade.collide(this.enemy, this.groundLayer);
      var collisionWithColtan = this.game.physics.arcade.collide(this.coltan, this.groundLayer);
+     var collisionWithTrigger = this.game.physics.arcade.collide(this.triggerR, this.groundLayer);
+     var collisionWithTrigger2 = this.game.physics.arcade.collide(this.triggerL, this.groundLayer);
   	 var cursors = this.game.input.keyboard.createCursorKeys();
      var jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 	   this.game.camera.follow(this._rush);
+     this.Input();
+
 
 	   this._rush.body.velocity.x = 0;
 
@@ -325,8 +349,10 @@ var PlayScene = {
 
     this.checkPlayerFell();
     this.enemyCollision();
-    this.enemyMovement();
-    this.game.physics.arcade.overlap(this._rush, this.coltan,this.takeColtan, null, this);
+    //this.enemyMovement();
+    this.game.physics.arcade.overlap(this._rush, this.coltan, this.takeColtan, null, this);
+    //this.game.physics.arcade.overlap(this.enemy, this.triggerR, this.changeDirection, null, this);
+    //this.game.physics.arcade.overlap(this.enemy, this.triggerL, this.changeDirection, null, this);
 
     },
 
@@ -342,11 +368,17 @@ var PlayScene = {
     },
 
     render: function() {
-      this.game.debug.bodyInfo(this._rush, 16, 24);
+      this.game.debug.bodyInfo(this.enemy, 16, 24);
     },
 
     enemyMovement: function(){
-      this.enemy.body.velocity.x = 50;
+     // this.enemy.body.velocity.x = 50; 
+      
+      },
+
+    changeDirection: function(){
+      this.enemy.body.velocity.x *= -1;
+      console.log('sa girao');
     },
 
     enemyCollision: function() {
@@ -359,7 +391,26 @@ var PlayScene = {
     takeColtan: function(){
       this.coltan.destroy();
       console.log('coltaaan');
+
     },
+
+
+  Input: function(){
+    if(this.game.input.keyboard.isDown(Phaser.Keyboard.ESC))
+      this.Pause();
+  },
+
+  Pause: function(){
+    this.menu = new menu(this.game);
+    this.game.paused = true;
+  },
+
+  unpause: function(event){
+    if(this.game.paused){
+      this.game.paused = false;
+      this.menu.destroy();
+    }
+  },
 
 
     
@@ -372,12 +423,54 @@ var PlayScene = {
     console.log("saa rotooo	")
     
     }
+  };
 
 
+function menu(game){
+
+    
+  this.button = game.add.sprite(game.world.centerX, 200, 'button');
+ 
+  this.button.inputEnabled = true;
+  game.input.onDown.add(actionOnClick, this);
+   
+
+  this.button.anchor.set(0.5);
+  this.pText = game.add.text(game.world.centerX, 100, "Pause");
+  this.text = game.add.text(0, 0, "Continue");
+  this.text.anchor.set(0.5);
+  this.pText.anchor.set(0.5);
+  this.button.addChild(this.text);
+    
+   
+  this.button2 = game.add.sprite(game.world.centerX, 300, 'button');
+  this.button2.anchor.set(0.5);
+  this.text2 = game.add.text(0, 0, "Return Menu");
+  this.text2.anchor.set(0.5);
+  this.button2.addChild(this.text2);
+
+  function actionOnClick(event){
+      if(this.button.getBounds().contains(event.x,event.y)){
+          game.paused = false;
+          this.destroy();
+      }
+      else if(this.button2.getBounds().contains(event.x,event.y)){
+          game.paused = false;
+          game.state.start('menu');
+      }
+  }
+}
+menu.prototype.destroy = function(){
+  this.button.kill();
+  this.pText.destroy();
+  this.text.destroy();
+  this.button2.kill();
+  this.text2.destroy();
+}
 
 
    
-};
+
 
 module.exports = PlayScene;
 

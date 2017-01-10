@@ -1,3 +1,5 @@
--menu/pantalla/pausa en general
--añadir enemigo
-
+-cambiar sprites enemigos
+-ajustar posiciones despues de cambiar los sprites
+-el texto del primer boton de 'gameover' se sale
+-quitar el bodyInfo de render (lo ultimo)
+-nivelar velocidades, saltos, etc con los sprites definitivos

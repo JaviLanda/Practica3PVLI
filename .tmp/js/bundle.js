@@ -231,7 +231,7 @@ module.exports = Pause
 //mover el player.
 var PlayerState = {'JUMP':0, 'RUN':1, 'FALLING':2, 'STOP':3}
 var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
-
+var enemyGroup;
 //var enemy;
 //Scena de juego.
 var PlayScene = {
@@ -245,6 +245,7 @@ var PlayScene = {
     enemy2:{},
     enemy3:{},
     enemy4:{},
+    enemy5:{},
     coltan:{},
 	 
 
@@ -270,21 +271,18 @@ var PlayScene = {
 
       //Añadimos los sprites de las entidades
       this._rush = this.game.add.sprite(250, 100, 'personaje');
-      this.coltan = this.game.add.sprite(350, 1950, 'coltan');
+      this.coltan = this.game.add.sprite(200, 1950, 'coltan');
       
-      var enemyGroup = this.game.add.group();
+      enemyGroup = this.game.add.group();
+      enemyGroup = this.game.add.physicsGroup();
       this._rush.scale.setTo(0.5, 0.5);
       this.coltan.scale.setTo(0.5, 0.5);
-      this.enemy = this.game.add.sprite(430, 500, 'enemy', 0, enemyGroup);
-      this.enemy2 = this.game.add.sprite(260, 850, 'enemy', 0, enemyGroup);
-      this.enemy3 = this.game.add.sprite(280, 1160, 'enemy', 0, enemyGroup);
-      this.enemy4 = this.game.add.sprite(280, 1900, 'enemy', 0, enemyGroup);
-     
-      
-      //this.triggerR = this.game.add.sprite(550, 1925, null, 0 /*aqui va el nombre del grupo de triggers*/);
-      //this.triggerR.scale.setTo(0.25, 0.25);
-      //this.triggerL = this.game.add.sprite(200, 1925, null, 0 /*aqui va el nombre del grupo de triggers*/);
-      //this.triggerL.scale.setTo(0.25, 0.25);
+      this.enemy = this.game.add.sprite(310, 400, 'enemy', 0, enemyGroup);
+      this.enemy2 = this.game.add.sprite(340, 770, 'enemy', 0, enemyGroup);
+      this.enemy3 = this.game.add.sprite(300, 1160, 'enemy', 0, enemyGroup);
+      this.enemy4 = this.game.add.sprite(280, 1950, 'enemy', 0, enemyGroup);
+      this.enemy5 = this.game.add.sprite(360, 1380, 'enemy', 0, enemyGroup);
+    
 
       //Limites y fisicas
       this.game.world.setBounds(0, 0, 2000, 2700);
@@ -299,6 +297,18 @@ var PlayScene = {
       this.enemy.body.immovable = true;
       this.enemy.body.collideWorldBounds = true;
       this.enemy.body.allowGravity = false;
+      this.enemy2.body.immovable = true;
+      this.enemy2.body.collideWorldBounds = true;
+      this.enemy2.body.allowGravity = false;
+      this.enemy3.body.immovable = true;
+      this.enemy3.body.collideWorldBounds = true;
+      this.enemy3.body.allowGravity = false;
+      this.enemy4.body.immovable = true;
+      this.enemy4.body.collideWorldBounds = true;
+      this.enemy4.body.allowGravity = false;
+      this.enemy5.body.immovable = true;
+      this.enemy5.body.collideWorldBounds = true;
+      this.enemy5.body.allowGravity = false;
 
       this._rush.body.bounce.y = 0.1;
       this._rush.body.gravity.y = 550;
@@ -309,10 +319,15 @@ var PlayScene = {
       this.game.camera.follow(this._rush);
 
       //tiempo cambio direccion enemigos
-      this.game.time.events.loop(Phaser.Timer.SECOND, this.changeDirection, this);
+      this.game.time.events.loop(Phaser.Timer.SECOND*2, this.changeDirection, this);
 
       //ajustamos aqui el movimiento del enemigo para que pueda girar sin problemas
-      this.enemy.body.velocity.x = 50;
+      //enemyGroup.setAll('x', 50, true, true, 1);
+      this.enemy.body.velocity.x = 75;
+      this.enemy2.body.velocity.x = 75;
+      this.enemy3.body.velocity.x = 75;
+      this.enemy4.body.velocity.x = 75;
+      this.enemy5.body.velocity.x = 75;
 
       //Pause------------------
       var Esc = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
@@ -354,9 +369,9 @@ var PlayScene = {
 
     this.checkPlayerFell();
     this.enemyCollision();
-    //this.enemyMovement();
     this.game.physics.arcade.overlap(this._rush, this.coltan, this.takeColtan, null, this);
-    //this.game.phy sics.arcade.overlap(this.enemy, this.triggerR, this.changeDirection, null, this);
+    this.game.physics.arcade.overlap(this._rush, enemyGroup, this.enemyCollision, null, this);
+    //this.game.physics.arcade.overlap(this.enemy, this.triggerR, this.changeDirection, null, this);
     //this.game.physics.arcade.overlap(this.enemy, this.triggerL, this.changeDirection, null, this);
 
     },
@@ -383,11 +398,15 @@ var PlayScene = {
 
     changeDirection: function(){
       this.enemy.body.velocity.x *= -1;
+      this.enemy2.body.velocity.x *= -1;
+      this.enemy3.body.velocity.x *= -1;
+      this.enemy4.body.velocity.x *= -1;
+      this.enemy5.body.velocity.x *= -1;
       console.log('sa girao');
     },
 
     enemyCollision: function() {
-      if(this.game.physics.arcade.overlap(this._rush, this.enemy)){
+      if(this.game.physics.arcade.overlap(this._rush, enemyGroup)){
         console.log("san tocao");
         this.game.state.start('gameOver');
       }
@@ -396,10 +415,9 @@ var PlayScene = {
     takeColtan: function(){
       this.coltan.destroy();
       console.log('coltaaan');
-      //this.game.state.start('victory');
+      this.game.state.start('victory');
 
     },
-
 
   Input: function(){
     if(this.game.input.keyboard.isDown(Phaser.Keyboard.ESC))
@@ -407,14 +425,14 @@ var PlayScene = {
   },
 
   Pause: function(){
-    this.menu = new menu(this.game);
+    this.menu_pause = new menu_pause(this.game);
     this.game.paused = true;
   },
 
   unpause: function(event){
     if(this.game.paused){
       this.game.paused = false;
-      this.menu.destroy();
+      this.menu_pause.destroy();
     }
   },
 
@@ -429,27 +447,29 @@ var PlayScene = {
   };
 
 
-function menu(game){
+function menu_pause(game){
 
-  this.button = game.add.sprite(game.world.centerX, 200, 'button');
- 
-  this.button.inputEnabled = true;
-  game.input.onDown.add(actionOnClick, this);
-
-  this.button.anchor.set(0.5);
-  this.pText = game.add.text(game.world.centerX, 100, "Pause");
-  this.text = game.add.text(0, 0, "Continue");
-  this.text.anchor.set(0.5);
+  //Título menu pause
+  this.pText = game.add.text(game.camera.x + 400, game.camera.y + 100, "Pause");
   this.pText.anchor.set(0.5);
-  this.button.addChild(this.text);
     
-  this.button2 = game.add.sprite(game.world.centerX, 300, 'button');
+  //Boton continue
+  this.button = game.add.button(game.camera.x + 400, game.camera.y + 300, 'button');
+  this.button.inputEnabled = true;
+  game.input.onDown.add(OnClick, this);
+  this.button.anchor.set(0.5);
+  this.txt = game.add.text(0, 0, "Continue");
+  this.txt.anchor.set(0.5);
+  this.button.addChild(this.txt);
+   
+  //Boton Return Menu
+  this.button2 = game.add.button(game.camera.x + 400, game.camera.y + 400, 'button');
   this.button2.anchor.set(0.5);
-  this.text2 = game.add.text(0, 0, "Return Menu");
-  this.text2.anchor.set(0.5);
-  this.button2.addChild(this.text2);
+  this.txt2 = game.add.text(0, 0, "Return Menu");
+  this.txt2.anchor.set(0.5);
+  this.button2.addChild(this.txt2);
 
-  function actionOnClick(event){
+  function OnClick(event){
       if(this.button.getBounds().contains(event.x,event.y)){
           game.paused = false;
           this.destroy();
@@ -460,14 +480,14 @@ function menu(game){
       }
   }
 }
-
-menu.prototype.destroy = function(){
+menu_pause.prototype.destroy = function(){
   this.button.kill();
-  this.pText.destroy();
-  this.text.destroy();
   this.button2.kill();
-  this.text2.destroy();
+  this.pText.destroy();
+  this.txt.destroy();
+  this.txt2.destroy();
 }
+
 
 module.exports = PlayScene;
 
